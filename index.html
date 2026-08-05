@@ -357,39 +357,14 @@
 
   function uid(){ return 'i' + Math.random().toString(36).slice(2,9); }
 
-  function jsonpGet(url){
-    return new Promise(function(resolve, reject){
-      var cbName = 'crvCb_' + Math.random().toString(36).slice(2,9);
-      var script = document.createElement('script');
-      var timeout = setTimeout(function(){
-        cleanup();
-        reject(new Error('Tiempo de espera agotado consultando Apps Script.'));
-      }, 10000);
-      function cleanup(){
-        clearTimeout(timeout);
-        delete window[cbName];
-        if(script.parentNode) script.parentNode.removeChild(script);
-      }
-      window[cbName] = function(payload){
-        cleanup();
-        resolve(payload);
-      };
-      script.onerror = function(){
-        cleanup();
-        reject(new Error('No se pudo contactar la URL de Apps Script.'));
-      };
-      script.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cbName;
-      document.head.appendChild(script);
-    });
-  }
-
   async function fetchRemote(){
     if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') === 0){
       showStorageWarning('Falta configurar APPS_SCRIPT_URL con la URL de tu implementación de Apps Script.');
       return null;
     }
     try{
-      var payload = await jsonpGet(APPS_SCRIPT_URL);
+      var res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
+      var payload = await res.json();
       hideStorageWarning();
       if(payload && payload.categories) return payload;
       return { categories: {} };
