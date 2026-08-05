@@ -322,24 +322,34 @@
 
   function uid(){ return 'i' + Math.random().toString(36).slice(2,9); }
 
-  async function load(){
+  async function fetchRemote(){
     try{
       var res = await window.storage.get(STORAGE_KEY, true);
       if(res && res.value){
         var parsed = JSON.parse(res.value);
-        if(parsed && parsed.categories) data = parsed;
+        if(parsed && parsed.categories) return parsed;
       }
+      return { categories: {} };
     }catch(e){
-      data = { categories: {} };
+      return null;
+    }
+  }
+
+  async function load(){
+    var remote = await fetchRemote();
+    if(remote !== null){
+      data = remote;
     }
     render();
   }
 
-  async function save(){
+  async function persist(obj){
     try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(data), true);
+      await window.storage.set(STORAGE_KEY, JSON.stringify(obj), true);
+      return true;
     }catch(e){
       showMsg('No se pudo guardar. Intenta nuevamente.', true);
+      return false;
     }
   }
 
@@ -452,9 +462,18 @@
     rowEl.replaceWith(wrap);
 
     saveBtn.addEventListener('click', async function(){
-      item.text = textIn.value.trim() || item.text;
-      item.url = urlIn.value.trim() || item.url;
-      await save();
+      var newText = textIn.value.trim() || item.text;
+      var newUrl = urlIn.value.trim() || item.url;
+      var remote = await fetchRemote();
+      if(remote === null){ remote = data; }
+      var list = remote.categories[catName];
+      if(list){
+        var target = list.find(function(i){ return i.id === item.id; });
+        if(target){ target.text = newText; target.url = newUrl; }
+      }
+      data = remote;
+      var ok = await persist(remote);
+      if(ok) showMsg('Enlace actualizado.', false);
       render();
     });
     cancelBtn.addEventListener('click', function(){
@@ -475,16 +494,19 @@
     var url = urlInput.value.trim();
     if(!text || !url){ showMsg('Completa el texto y el enlace.', true); return; }
 
-    if(!data.categories[finalCat]) data.categories[finalCat] = [];
-    data.categories[finalCat].push({ id: uid(), text: text, url: url });
-    await save();
+    var remote = await fetchRemote();
+    if(remote === null){ remote = data; }
+    if(!remote.categories[finalCat]) remote.categories[finalCat] = [];
+    remote.categories[finalCat].push({ id: uid(), text: text, url: url });
+    data = remote;
+    var ok = await persist(remote);
     textInput.value = '';
     urlInput.value = '';
     newCatInput.value = '';
     render();
     catSelect.value = finalCat;
     toggleNewCatField();
-    showMsg('Enlace agregado.', false);
+    if(ok) showMsg('Enlace agregado.', false);
   });
 
   var letters = ['P','A','N','E','L'];
