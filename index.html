@@ -130,6 +130,25 @@
     padding:.4rem 0;
     text-align:center;
   }
+  .crv-loading{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:var(--text-mid);
+    font-size:15px;
+    padding:2.5rem 1rem;
+  }
+  .crv-loading::before{
+    content:"";
+    width:18px;height:18px;
+    border-radius:50%;
+    border:3px solid var(--line);
+    border-top-color:var(--sky);
+    animation:crv-spin .8s linear infinite;
+  }
+  @keyframes crv-spin{ to{ transform:rotate(360deg); } }
   .crv-edit-row{
     display:flex;
     flex-direction:column;
@@ -279,7 +298,9 @@
   <div id="crv-storage-warning" class="crv-storage-warning"></div>
 
   <div class="crv-main">
-    <div id="crv-grid" class="crv-grid"></div>
+    <div id="crv-grid" class="crv-grid">
+      <div class="crv-loading">Cargando enlaces desde la planilla…</div>
+    </div>
   </div>
 
   <div class="crv-form-section">
@@ -354,20 +375,39 @@
   }
 
   var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYLwXx8PscxdGucVddUz4XPyqfOopdft2FpIfVokOyjwBQ8k4kuv3PP-ZOZYRh6g13jg/exec';
+  var SHEET_ID = '161Qa2RyqmHrlpdvmgpKxKWZBoAhh6Eh6rkkfXLJFStg';
+  var SHEET_NAME = 'Datos';
+  var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
 
   function uid(){ return 'i' + Math.random().toString(36).slice(2,9); }
 
+  function parseGvizResponse(text){
+    var start = text.indexOf('(');
+    var end = text.lastIndexOf(')');
+    var jsonStr = text.substring(start + 1, end);
+    var parsed = JSON.parse(jsonStr);
+    var rows = (parsed.table && parsed.table.rows) || [];
+    var categories = {};
+    rows.forEach(function(r){
+      var c = r.c || [];
+      var id = c[0] && c[0].v;
+      var cat = c[1] && c[1].v;
+      var text_ = c[2] && c[2].v;
+      var url = c[3] && c[3].v;
+      if(!id || !cat) return;
+      if(!categories[cat]) categories[cat] = [];
+      categories[cat].push({ id: String(id), text: text_, url: url });
+    });
+    return { categories: categories };
+  }
+
   async function fetchRemote(){
-    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') === 0){
-      showStorageWarning('Falta configurar APPS_SCRIPT_URL con la URL de tu implementación de Apps Script.');
-      return null;
-    }
     try{
-      var res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
-      var payload = await res.json();
+      var res = await fetch(GVIZ_URL);
+      var text = await res.text();
+      var payload = parseGvizResponse(text);
       hideStorageWarning();
-      if(payload && payload.categories) return payload;
-      return { categories: {} };
+      return payload;
     }catch(e){
       showStorageWarning((e && e.message) ? e.message : String(e));
       return null;
