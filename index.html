@@ -174,6 +174,7 @@
     max-width:960px;
     margin:1.6rem auto 0;
     padding:0 1.5rem;
+    display:none;
   }
   .crv-form-section h3{
     font-family:'Oswald',sans-serif;
@@ -294,7 +295,7 @@
     </div>
   </div>
 
-  <div class="crv-form-section">
+  <div class="crv-form-section" id="crv-form-section">
     <h3>Agregar nuevo enlace</h3>
     <div class="crv-form">
       <div>
@@ -345,6 +346,7 @@
   var dotsWrap = document.getElementById('crv-dots');
   var pinStatus = document.getElementById('crv-pin-status');
   var storageWarning = document.getElementById('crv-storage-warning');
+  var formSection = document.getElementById('crv-form-section');
   var headerEl = document.querySelector('.crv-header');
 
   var HEADER_COLORS = ['#2ba8d9','#43a047','#ef6c4d','#8859c9','#e0a11f'];
@@ -621,6 +623,7 @@
         unlocked = true;
         pinStatus.textContent = 'Edición habilitada: presiona el punto junto a un texto para editarlo.';
         pinStatus.classList.add('unlocked');
+        formSection.style.display = 'block';
         render();
       }else{
         pinBuffer = [];
