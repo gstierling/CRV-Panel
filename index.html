@@ -32,7 +32,7 @@
     padding:0 0 4rem;
   }
   .crv-header{
-    padding:2.6rem 1.5rem 2.2rem;
+    padding:1.6rem 1.5rem 1.3rem;
     text-align:center;
     background:var(--sky);
     position:relative;
@@ -56,25 +56,25 @@
   }
   .crv-header h1 span{color:var(--sun);}
   .crv-header p{
-    margin:.6rem 0 0;
+    margin:.3rem 0 0;
     color:#eaf7ff;
     font-size:14px;
   }
   .crv-main{
     max-width:960px;
     margin:0 auto;
-    padding:2.2rem 1.5rem 0;
+    padding:1.2rem 1.5rem 0;
   }
   .crv-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:1.4rem;
+    gap:.8rem;
   }
   .crv-card{
     background:var(--card);
     border:1px solid var(--line);
-    border-radius:14px;
-    padding:1.4rem 1.3rem 1.5rem;
+    border-radius:12px;
+    padding:.8rem 1.1rem .9rem;
     box-shadow:0 2px 0 var(--line);
   }
   .crv-card h2{
@@ -83,24 +83,15 @@
     font-size:30px;
     text-transform:uppercase;
     letter-spacing:.4px;
-    margin:0 0 1rem;
+    margin:0 0 .4rem;
     color:var(--sky-dark);
     text-align:center;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-  }
-  .crv-card h2::before{
-    content:"";
-    width:14px;height:14px;border-radius:50%;
-    background:var(--sun);
   }
   .crv-item-row{
     display:flex;
     align-items:center;
     gap:10px;
-    padding:.6rem .1rem;
+    padding:.3rem .1rem;
     border-bottom:1px solid var(--line);
   }
   .crv-item-row:last-child{border-bottom:none;}
@@ -181,7 +172,7 @@
 
   .crv-form-section{
     max-width:960px;
-    margin:2.8rem auto 0;
+    margin:1.6rem auto 0;
     padding:0 1.5rem;
   }
   .crv-form-section h3{
@@ -240,8 +231,8 @@
 
   .crv-pin-section{
     max-width:960px;
-    margin:2.8rem auto 0;
-    padding:1.6rem 1.5rem 0;
+    margin:1.6rem auto 0;
+    padding:1rem 1.5rem 0;
     text-align:center;
   }
   .crv-pin-keys{
@@ -377,7 +368,7 @@
   var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYLwXx8PscxdGucVddUz4XPyqfOopdft2FpIfVokOyjwBQ8k4kuv3PP-ZOZYRh6g13jg/exec';
   var SHEET_ID = '161Qa2RyqmHrlpdvmgpKxKWZBoAhh6Eh6rkkfXLJFStg';
   var SHEET_NAME = 'Datos';
-  var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
+  var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME) + '&headers=1';
 
   function uid(){ return 'i' + Math.random().toString(36).slice(2,9); }
 
