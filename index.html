@@ -8,153 +8,180 @@
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   :root{
-    --asphalt-0:#15181c;
-    --asphalt-1:#1c2126;
-    --asphalt-2:#252b31;
-    --line-y:#f7c948;
-    --line-y-dark:#8a6a12;
-    --sky:#4fb3d9;
-    --text-hi:#f2f1ec;
-    --text-mid:#b7bcc2;
-    --text-low:#767c84;
-    --danger:#e05a4e;
+    --bg:#eef7fb;
+    --card:#ffffff;
+    --line:#dceaf2;
+    --sun:#ffc93c;
+    --sun-dark:#c98d00;
+    --sky:#2ba8d9;
+    --sky-dark:#1a7fa8;
+    --grass:#4caf6e;
+    --grass-dark:#2f7d4b;
+    --coral:#f2704f;
+    --text-hi:#1f2d3a;
+    --text-mid:#5a6b78;
+    --text-low:#8ea0ac;
   }
   *{box-sizing:border-box;}
   body{margin:0;}
   .crv-app{
     font-family:'Inter',sans-serif;
-    background:var(--asphalt-0);
+    background:var(--bg);
     color:var(--text-hi);
     min-height:100vh;
     padding:0 0 4rem;
   }
   .crv-header{
-    padding:2.5rem 1.5rem 2rem;
+    padding:2.6rem 1.5rem 2.2rem;
     text-align:center;
-    border-bottom:3px dashed var(--line-y-dark);
+    background:var(--sky);
     position:relative;
+    overflow:hidden;
+  }
+  .crv-header::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:8px;
+    background:repeating-linear-gradient(90deg,var(--sun) 0 24px, var(--card) 24px 48px);
   }
   .crv-header h1{
     font-family:'Oswald',sans-serif;
     font-weight:700;
     text-transform:uppercase;
     letter-spacing:0.5px;
-    font-size:clamp(22px,4vw,34px);
+    font-size:clamp(24px,4.2vw,36px);
     margin:0;
-    color:var(--text-hi);
+    color:#ffffff;
   }
-  .crv-header h1 span{color:var(--line-y);}
+  .crv-header h1 span{color:var(--sun);}
   .crv-header p{
-    margin:.5rem 0 0;
-    color:var(--text-mid);
+    margin:.6rem 0 0;
+    color:#eaf7ff;
     font-size:14px;
   }
   .crv-main{
-    max-width:920px;
+    max-width:960px;
     margin:0 auto;
-    padding:2rem 1.5rem 0;
+    padding:2.2rem 1.5rem 0;
   }
   .crv-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:1.2rem;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:1.4rem;
   }
   .crv-card{
-    background:var(--asphalt-1);
-    border:1px solid #33393f;
-    border-radius:10px;
-    padding:1.1rem 1.2rem 1.3rem;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.4rem 1.3rem 1.5rem;
+    box-shadow:0 2px 0 var(--line);
   }
   .crv-card h2{
     font-family:'Oswald',sans-serif;
     font-weight:600;
-    font-size:15px;
+    font-size:30px;
     text-transform:uppercase;
-    letter-spacing:.6px;
-    margin:0 0 .8rem;
-    color:var(--sky);
+    letter-spacing:.4px;
+    margin:0 0 1rem;
+    color:var(--sky-dark);
+    text-align:center;
     display:flex;
+    flex-direction:column;
     align-items:center;
     gap:8px;
   }
   .crv-card h2::before{
     content:"";
-    width:10px;height:10px;border-radius:50%;
-    background:var(--line-y);
-    flex:none;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--sun);
   }
+  .crv-item-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:.6rem .1rem;
+    border-bottom:1px solid var(--line);
+  }
+  .crv-item-row:last-child{border-bottom:none;}
   .crv-item{
-    display:block;
-    padding:.55rem .1rem;
-    border-bottom:1px solid #2c3238;
+    flex:1;
     color:var(--text-hi);
     text-decoration:none;
-    font-size:14px;
-    line-height:1.4;
-    -webkit-user-select:none;
-    user-select:none;
-    cursor:pointer;
-    position:relative;
-    border-radius:6px;
+    font-size:21px;
+    line-height:1.35;
+    font-weight:500;
   }
-  .crv-item:last-child{border-bottom:none;}
-  .crv-item:hover{color:var(--line-y);}
-  .crv-item.editing-target{background:#2c2410;}
+  .crv-item:hover{color:var(--sky-dark);}
+  .crv-bullet{
+    flex:none;
+    width:20px;height:20px;
+    border-radius:50%;
+    border:2px solid var(--grass);
+    background:#eaf8ee;
+    cursor:pointer;
+    padding:0;
+  }
+  .crv-bullet:hover{background:var(--grass);}
   .crv-empty{
     color:var(--text-low);
-    font-size:13px;
+    font-size:14px;
     font-style:italic;
     padding:.4rem 0;
+    text-align:center;
   }
   .crv-edit-row{
     display:flex;
     flex-direction:column;
-    gap:6px;
-    padding:.5rem 0;
+    gap:8px;
+    padding:.6rem .1rem;
+    width:100%;
   }
   .crv-edit-row input{
-    background:var(--asphalt-0);
+    background:#f7fbfd;
     border:1px solid var(--sky);
     color:var(--text-hi);
-    padding:6px 8px;
-    border-radius:6px;
-    font-size:13px;
+    padding:8px 10px;
+    border-radius:8px;
+    font-size:15px;
     font-family:'Inter',sans-serif;
   }
   .crv-edit-actions{display:flex;gap:8px;margin-top:2px;}
   .crv-edit-actions button{
-    font-size:12px;
-    padding:5px 10px;
-    border-radius:6px;
-    border:1px solid #444;
-    background:var(--asphalt-2);
+    font-size:13px;
+    padding:6px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--card);
     color:var(--text-hi);
     cursor:pointer;
+    font-weight:500;
   }
-  .crv-edit-actions button.save{border-color:var(--line-y);color:var(--line-y);}
-  .crv-edit-actions button.cancel{border-color:var(--danger);color:var(--danger);}
+  .crv-edit-actions button.save{border-color:var(--grass);color:var(--grass-dark);background:#eaf8ee;}
+  .crv-edit-actions button.cancel{border-color:var(--coral);color:var(--coral);}
 
   .crv-form-section{
-    max-width:920px;
-    margin:2.5rem auto 0;
-    padding:1.5rem 1.5rem 0;
-    border-top:3px dashed var(--line-y-dark);
+    max-width:960px;
+    margin:2.8rem auto 0;
+    padding:0 1.5rem;
   }
   .crv-form-section h3{
     font-family:'Oswald',sans-serif;
     text-transform:uppercase;
-    font-size:14px;
-    letter-spacing:.6px;
-    color:var(--text-mid);
-    margin:1.2rem 0 .8rem;
+    font-size:15px;
+    letter-spacing:.5px;
+    color:var(--sky-dark);
+    margin:0 0 .9rem;
+    text-align:center;
   }
   .crv-form{
-    background:var(--asphalt-1);
-    border:1px solid #33393f;
-    border-radius:10px;
-    padding:1.2rem;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:1.3rem;
     display:grid;
-    gap:.8rem;
+    gap:.9rem;
+    box-shadow:0 2px 0 var(--line);
   }
   .crv-form label{
     font-size:12px;
@@ -163,38 +190,39 @@
     margin-bottom:4px;
     text-transform:uppercase;
     letter-spacing:.4px;
+    font-weight:500;
   }
   .crv-form select,.crv-form input[type=text],.crv-form input[type=url]{
     width:100%;
-    background:var(--asphalt-0);
-    border:1px solid #3c434a;
+    background:#f7fbfd;
+    border:1px solid var(--line);
     color:var(--text-hi);
-    padding:9px 10px;
-    border-radius:7px;
-    font-size:14px;
+    padding:10px 11px;
+    border-radius:8px;
+    font-size:15px;
     font-family:'Inter',sans-serif;
   }
   .crv-form select:focus,.crv-form input:focus{outline:none;border-color:var(--sky);}
   .crv-form button.crv-submit{
-    justify-self:start;
-    background:var(--line-y);
-    color:#3a2c00;
+    justify-self:center;
+    background:var(--sun);
+    color:#5a3d00;
     border:none;
     font-weight:600;
-    padding:10px 20px;
-    border-radius:7px;
+    padding:11px 26px;
+    border-radius:9px;
     cursor:pointer;
-    font-size:14px;
+    font-size:15px;
   }
-  .crv-form button.crv-submit:hover{filter:brightness(1.08);}
-  .crv-msg{font-size:13px;min-height:16px;}
-  .crv-msg.ok{color:#8fd694;}
-  .crv-msg.err{color:var(--danger);}
+  .crv-form button.crv-submit:hover{filter:brightness(1.05);}
+  .crv-msg{font-size:13px;min-height:16px;text-align:center;}
+  .crv-msg.ok{color:var(--grass-dark);}
+  .crv-msg.err{color:var(--coral);}
 
   .crv-pin-section{
-    max-width:920px;
-    margin:2.5rem auto 0;
-    padding:1.5rem;
+    max-width:960px;
+    margin:2.8rem auto 0;
+    padding:1.6rem 1.5rem 0;
     text-align:center;
   }
   .crv-pin-keys{
@@ -208,23 +236,23 @@
     font-family:'Oswald',sans-serif;
     font-weight:700;
     font-size:20px;
-    width:46px;height:46px;
-    border-radius:8px;
-    border:1px solid #3c434a;
-    background:var(--asphalt-1);
-    color:var(--text-hi);
+    width:48px;height:48px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--sky-dark);
     cursor:pointer;
   }
   .crv-pin-key:active{transform:scale(.94);}
   .crv-pin-status{
-    margin-top:.7rem;
+    margin-top:.8rem;
     font-size:12px;
     color:var(--text-low);
-    letter-spacing:.5px;
+    letter-spacing:.4px;
   }
-  .crv-pin-status.unlocked{color:var(--line-y);}
-  .crv-dots{display:flex;justify-content:center;gap:6px;margin-top:.5rem;}
-  .crv-dot{width:8px;height:8px;border-radius:50%;background:#3c434a;}
+  .crv-pin-status.unlocked{color:var(--grass-dark);font-weight:500;}
+  .crv-dots{display:flex;justify-content:center;gap:6px;margin-top:.6rem;}
+  .crv-dot{width:8px;height:8px;border-radius:50%;background:var(--line);}
   .crv-dot.filled{background:var(--sky);}
 </style>
 </head>
@@ -267,7 +295,7 @@
   <div class="crv-pin-section">
     <div class="crv-pin-keys" id="crv-pin-keys"></div>
     <div class="crv-dots" id="crv-dots"></div>
-    <div class="crv-pin-status" id="crv-pin-status">Ingresa la clave para habilitar edición (mantén presionado un texto 5s)</div>
+    <div class="crv-pin-status" id="crv-pin-status">Ingresa la clave para habilitar edición</div>
   </div>
 
 </div>
@@ -367,53 +395,39 @@
         card.appendChild(p);
       }else{
         items.forEach(function(item){
-          card.appendChild(buildItemEl(catName, item));
+          card.appendChild(buildItemRow(catName, item));
         });
       }
       grid.appendChild(card);
     });
   }
 
-  function buildItemEl(catName, item){
+  function buildItemRow(catName, item){
+    var row = document.createElement('div');
+    row.className = 'crv-item-row';
+
+    if(unlocked){
+      var bullet = document.createElement('button');
+      bullet.className = 'crv-bullet';
+      bullet.setAttribute('aria-label', 'Editar ' + item.text);
+      bullet.addEventListener('click', function(){
+        enterEditMode(catName, item, row);
+      });
+      row.appendChild(bullet);
+    }
+
     var a = document.createElement('a');
     a.className = 'crv-item';
     a.href = item.url;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.textContent = item.text;
-    a.dataset.id = item.id;
+    row.appendChild(a);
 
-    var pressTimer = null;
-    var longPressed = false;
-
-    function startPress(e){
-      longPressed = false;
-      pressTimer = setTimeout(function(){
-        if(unlocked){
-          longPressed = true;
-          enterEditMode(catName, item, a);
-        }
-      }, 5000);
-    }
-    function cancelPress(){
-      if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
-    }
-    function onClick(e){
-      if(longPressed){ e.preventDefault(); }
-    }
-
-    a.addEventListener('mousedown', startPress);
-    a.addEventListener('touchstart', startPress, {passive:true});
-    a.addEventListener('mouseup', cancelPress);
-    a.addEventListener('mouseleave', cancelPress);
-    a.addEventListener('touchend', cancelPress);
-    a.addEventListener('touchcancel', cancelPress);
-    a.addEventListener('click', onClick);
-
-    return a;
+    return row;
   }
 
-  function enterEditMode(catName, item, anchorEl){
+  function enterEditMode(catName, item, rowEl){
     var wrap = document.createElement('div');
     wrap.className = 'crv-edit-row';
 
@@ -435,7 +449,7 @@
     wrap.appendChild(urlIn);
     wrap.appendChild(actions);
 
-    anchorEl.replaceWith(wrap);
+    rowEl.replaceWith(wrap);
 
     saveBtn.addEventListener('click', async function(){
       item.text = textIn.value.trim() || item.text;
@@ -503,8 +517,9 @@
       var match = pinBuffer.every(function(l,i){ return l === PIN_CODE[i]; });
       if(match){
         unlocked = true;
-        pinStatus.textContent = 'Edición habilitada: mantén presionado un texto 5s para editarlo.';
+        pinStatus.textContent = 'Edición habilitada: presiona el punto junto a un texto para editarlo.';
         pinStatus.classList.add('unlocked');
+        render();
       }else{
         pinBuffer = [];
         updateDots();
