@@ -254,6 +254,18 @@
   .crv-dots{display:flex;justify-content:center;gap:6px;margin-top:.6rem;}
   .crv-dot{width:8px;height:8px;border-radius:50%;background:var(--line);}
   .crv-dot.filled{background:var(--sky);}
+  .crv-storage-warning{
+    display:none;
+    max-width:960px;
+    margin:1rem auto 0;
+    padding:.8rem 1.1rem;
+    background:#fff3e6;
+    border:1px solid var(--coral);
+    color:#8a3b1f;
+    border-radius:10px;
+    font-size:13px;
+    line-height:1.5;
+  }
 </style>
 </head>
 <body>
@@ -263,6 +275,8 @@
     <h1>CicloRecreo<span>Vía</span>. Panel de DASHBOARDS</h1>
     <p>Enlaces internos organizados por categoría</p>
   </div>
+
+  <div id="crv-storage-warning" class="crv-storage-warning"></div>
 
   <div class="crv-main">
     <div id="crv-grid" class="crv-grid"></div>
@@ -302,7 +316,6 @@
 
 <script>
 (function(){
-  var STORAGE_KEY = 'crv-panel-data';
   var PIN_CODE = ['P','L','A','E','N'];
   var data = { categories: {} };
   var unlocked = false;
@@ -319,18 +332,69 @@
   var pinKeysWrap = document.getElementById('crv-pin-keys');
   var dotsWrap = document.getElementById('crv-dots');
   var pinStatus = document.getElementById('crv-pin-status');
+  var storageWarning = document.getElementById('crv-storage-warning');
+  var headerEl = document.querySelector('.crv-header');
+
+  var HEADER_COLORS = ['#2ba8d9','#43a047','#ef6c4d','#8859c9','#e0a11f'];
+  var headerColorIdx = 0;
+
+  function cycleHeaderColor(){
+    var next;
+    do{ next = Math.floor(Math.random() * HEADER_COLORS.length); }while(next === headerColorIdx && HEADER_COLORS.length > 1);
+    headerColorIdx = next;
+    headerEl.style.background = HEADER_COLORS[headerColorIdx];
+  }
+
+  function showStorageWarning(detail){
+    storageWarning.textContent = 'No se pudo conectar con el almacenamiento persistente, por lo que los cambios podrían no guardarse. Detalle técnico: ' + detail;
+    storageWarning.style.display = 'block';
+  }
+  function hideStorageWarning(){
+    storageWarning.style.display = 'none';
+  }
+
+  var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYLwXx8PscxdGucVddUz4XPyqfOopdft2FpIfVokOyjwBQ8k4kuv3PP-ZOZYRh6g13jg/exec';
 
   function uid(){ return 'i' + Math.random().toString(36).slice(2,9); }
 
-  async function fetchRemote(){
-    try{
-      var res = await window.storage.get(STORAGE_KEY, true);
-      if(res && res.value){
-        var parsed = JSON.parse(res.value);
-        if(parsed && parsed.categories) return parsed;
+  function jsonpGet(url){
+    return new Promise(function(resolve, reject){
+      var cbName = 'crvCb_' + Math.random().toString(36).slice(2,9);
+      var script = document.createElement('script');
+      var timeout = setTimeout(function(){
+        cleanup();
+        reject(new Error('Tiempo de espera agotado consultando Apps Script.'));
+      }, 10000);
+      function cleanup(){
+        clearTimeout(timeout);
+        delete window[cbName];
+        if(script.parentNode) script.parentNode.removeChild(script);
       }
+      window[cbName] = function(payload){
+        cleanup();
+        resolve(payload);
+      };
+      script.onerror = function(){
+        cleanup();
+        reject(new Error('No se pudo contactar la URL de Apps Script.'));
+      };
+      script.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cbName;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function fetchRemote(){
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') === 0){
+      showStorageWarning('Falta configurar APPS_SCRIPT_URL con la URL de tu implementación de Apps Script.');
+      return null;
+    }
+    try{
+      var payload = await jsonpGet(APPS_SCRIPT_URL);
+      hideStorageWarning();
+      if(payload && payload.categories) return payload;
       return { categories: {} };
     }catch(e){
+      showStorageWarning((e && e.message) ? e.message : String(e));
       return null;
     }
   }
@@ -343,12 +407,24 @@
     render();
   }
 
-  async function persist(obj){
+  async function postToSheet(body){
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PEGA_AQUI') === 0){
+      showStorageWarning('Falta configurar APPS_SCRIPT_URL con la URL de tu implementación de Apps Script.');
+      showMsg('No se pudo guardar: falta configurar la conexión con la planilla.', true);
+      return false;
+    }
     try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(obj), true);
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
+      });
+      hideStorageWarning();
       return true;
     }catch(e){
-      showMsg('No se pudo guardar. Intenta nuevamente.', true);
+      var detail = (e && e.message) ? e.message : String(e);
+      showStorageWarning(detail);
+      showMsg('No se pudo guardar. Detalle: ' + detail, true);
       return false;
     }
   }
@@ -464,17 +540,14 @@
     saveBtn.addEventListener('click', async function(){
       var newText = textIn.value.trim() || item.text;
       var newUrl = urlIn.value.trim() || item.url;
-      var remote = await fetchRemote();
-      if(remote === null){ remote = data; }
-      var list = remote.categories[catName];
-      if(list){
-        var target = list.find(function(i){ return i.id === item.id; });
-        if(target){ target.text = newText; target.url = newUrl; }
+      var ok = await postToSheet({ action: 'edit', id: item.id, text: newText, url: newUrl });
+      if(ok){
+        showMsg('Enlace actualizado.', false);
+        cycleHeaderColor();
+        await load();
+      }else{
+        render();
       }
-      data = remote;
-      var ok = await persist(remote);
-      if(ok) showMsg('Enlace actualizado.', false);
-      render();
     });
     cancelBtn.addEventListener('click', function(){
       render();
@@ -494,19 +567,20 @@
     var url = urlInput.value.trim();
     if(!text || !url){ showMsg('Completa el texto y el enlace.', true); return; }
 
-    var remote = await fetchRemote();
-    if(remote === null){ remote = data; }
-    if(!remote.categories[finalCat]) remote.categories[finalCat] = [];
-    remote.categories[finalCat].push({ id: uid(), text: text, url: url });
-    data = remote;
-    var ok = await persist(remote);
+    var newId = uid();
+    var ok = await postToSheet({ action: 'add', id: newId, category: finalCat, text: text, url: url });
     textInput.value = '';
     urlInput.value = '';
     newCatInput.value = '';
-    render();
+    if(ok){
+      showMsg('Enlace agregado.', false);
+      cycleHeaderColor();
+      await load();
+    }else{
+      render();
+    }
     catSelect.value = finalCat;
     toggleNewCatField();
-    if(ok) showMsg('Enlace agregado.', false);
   });
 
   var letters = ['P','A','N','E','L'];
