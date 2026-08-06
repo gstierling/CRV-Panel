@@ -381,13 +381,14 @@
     var parsed = JSON.parse(jsonStr);
     var rows = (parsed.table && parsed.table.rows) || [];
     var categories = {};
-    rows.forEach(function(r){
+    rows.forEach(function(r, idx){
       var c = r.c || [];
       var id = c[0] && c[0].v;
       var cat = c[1] && c[1].v;
       var text_ = c[2] && c[2].v;
       var url = c[3] && c[3].v;
-      if(!id || !cat) return;
+      if(!cat) return;
+      if(!id) id = 'fila-' + (idx + 2);
       if(!categories[cat]) categories[cat] = [];
       categories[cat].push({ id: String(id), text: text_, url: url });
     });
