@@ -60,6 +60,28 @@
     color:#eaf7ff;
     font-size:14px;
   }
+  .crv-filter-bar{
+    text-align:center;
+    padding:.9rem 1.5rem 0;
+  }
+  .crv-filter-btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:.2px;
+    padding:9px 18px;
+    border-radius:999px;
+    border:1.5px solid var(--sky);
+    background:var(--card);
+    color:var(--sky-dark);
+    cursor:pointer;
+  }
+  .crv-filter-btn:hover{background:#eaf7fc;}
+  .crv-filter-btn.active{
+    background:var(--sky);
+    border-color:var(--sky);
+    color:#ffffff;
+  }
   .crv-main{
     max-width:960px;
     margin:0 auto;
@@ -287,6 +309,10 @@
     <p>Enlaces internos organizados por categoría</p>
   </div>
 
+  <div class="crv-filter-bar">
+    <button id="crv-filter-toggle" class="crv-filter-btn">Mostrar solo Dashboards de Progreso</button>
+  </div>
+
   <div id="crv-storage-warning" class="crv-storage-warning"></div>
 
   <div class="crv-main">
@@ -465,6 +491,9 @@
   }
   catSelect.addEventListener('change', toggleNewCatField);
 
+  var progressFilterActive = false;
+  var PROGRESS_FILTER_TEXT = 'dash progreso';
+
   function render(){
     renderCatSelect();
     grid.innerHTML = '';
@@ -476,25 +505,38 @@
       grid.appendChild(emptyCard);
       return;
     }
+    var anyCardShown = false;
     cats.forEach(function(catName){
+      var items = data.categories[catName] || [];
+      var visibleItems = progressFilterActive
+        ? items.filter(function(i){ return (i.text || '').toLowerCase().indexOf(PROGRESS_FILTER_TEXT) !== -1; })
+        : items;
+      if(progressFilterActive && visibleItems.length === 0) return;
+
+      anyCardShown = true;
       var card = document.createElement('div');
       card.className = 'crv-card';
       var h2 = document.createElement('h2');
       h2.textContent = catName;
       card.appendChild(h2);
-      var items = data.categories[catName];
-      if(!items || items.length === 0){
+      if(visibleItems.length === 0){
         var p = document.createElement('div');
         p.className = 'crv-empty';
         p.textContent = 'Sin enlaces en esta categoría todavía.';
         card.appendChild(p);
       }else{
-        items.forEach(function(item){
+        visibleItems.forEach(function(item){
           card.appendChild(buildItemRow(catName, item));
         });
       }
       grid.appendChild(card);
     });
+    if(!anyCardShown && progressFilterActive){
+      var noMatch = document.createElement('div');
+      noMatch.className = 'crv-card';
+      noMatch.innerHTML = '<h2>Sin resultados</h2><p class="crv-empty">Ningún enlace contiene "Dash Progreso".</p>';
+      grid.appendChild(noMatch);
+    }
   }
 
   function buildItemRow(catName, item){
@@ -590,6 +632,13 @@
     }
     catSelect.value = finalCat;
     toggleNewCatField();
+  });
+
+  var filterToggleBtn = document.getElementById('crv-filter-toggle');
+  filterToggleBtn.addEventListener('click', function(){
+    progressFilterActive = !progressFilterActive;
+    filterToggleBtn.classList.toggle('active', progressFilterActive);
+    render();
   });
 
   var letters = ['P','A','N','E','L'];
